@@ -1,0 +1,31 @@
+{
+  "header": {
+    "messageID": "uniqueMessageId",
+    "originatorConversationID": "",
+    "channelCode": "202",
+    "timeStamp": "20201117101010"
+  },
+  "requestPayload": {
+    "primaryData": {
+      "businessKey": "000000",
+      "businessKeyType": "queryBiller"
+    },
+    "additionalData": {
+      "notificationData": {
+        "businessKey": "P-INV-001",
+        "businessKeyType": "BillReferenceNumber",
+        "debitMSISDN": "254722520441",
+        "transactionAmt": "100.00",
+        "transactionDate": "20201102",
+        "transactionID": "FT235373",
+        "firstName": "James",
+        "middleName": "Jay",
+        "lastName": "Armstrong",
+        "currency": "KES",
+        "narration": "ticket payment",
+        "transactionType": "vooma",
+        "balance": "0.00"
+      }
+    }
+  }
+}

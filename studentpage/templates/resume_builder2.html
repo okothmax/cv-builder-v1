@@ -1,0 +1,716 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+    .action-button-download {
+    width: 100px; /* Same width as the next button */
+    background: #ee0979; /* Pink background to match the next button */
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 25px;
+    cursor: pointer;
+    padding: 10px 5px; /* Ensure padding matches exactly */
+    margin: 10px 5px;
+    font-size: 13px; /* Make sure font size is consistent */
+    line-height: normal; /* Adjust line height if needed */
+}
+
+.action-button-download:hover,
+.action-button-download:focus {
+    box-shadow: 0 0 0 2px white, 0 0 0 3px #ee0979;
+}
+
+        /* Updated Styles for the Summary Box in the Preview Section */
+#preview-summary {
+    width: 100%;
+    min-height: 50px; /* Minimum height of 50px */
+    resize: none; /* Disable manual resizing by the user */
+    overflow-y: hidden; /* Hide vertical overflow initially */
+    border: none; /* No border for clean appearance */
+    font-size: 14px; /* Match the font size to other content */
+    font-family: Arial, sans-serif; /* Use a consistent font family */
+    color: #333; /* Set text color */
+    padding: 0; /* Remove padding */
+    line-height: 1.5; /* Improve readability */
+}
+
+
+        /* General font style for all content from Summary to References (except headers) */
+#resume .section-content p,
+#resume .section-content li,
+#resume .section-content input,
+#resume .section-content textarea {
+    font-size: 14px; /* Set a common font size */
+    font-family: Arial, sans-serif; /* Set a common font family */
+    color: #333; /* Set a common font color */
+    line-height: 1.5; /* Improve readability with line height */
+}
+
+/* Specific styles for lists in different sections */
+#skills-list,
+#Languages-list,
+#Interests\ and\ Hobbies-list,
+#References-list,
+#certifications-list {
+    text-align: left; /* Aligns text to the left */
+    list-style-type: disc; /* Adds bullet points */
+    margin-left: 20px; /* Adds some space from the left */
+    padding-left: 0; /* Removes padding to ensure alignment */
+}
+
+/* Styles for section headers to remain distinct */
+#resume .section-title {
+    font-size: 20px; /* Keep the header font size larger */
+    color: #007bff; /* Header color */
+    border-bottom: 2px solid #007bff; /* Keep the border under the headers */
+    padding-bottom: 5px;
+}
+
+/* Additional styling for inputs and textareas in the preview to match the text style */
+#resume input[type="text"],
+#resume textarea {
+    border: none; /* Removes border for a clean look */
+    width: 100%; /* Ensures full width */
+    resize: none; /* Disables resizing for uniformity */
+    font-size: 14px; /* Matches the common font size */
+    font-family: Arial, sans-serif; /* Matches the common font family */
+    color: #333; /* Matches the common font color */
+    margin-bottom: 5px; /* Adds spacing between elements */
+}
+
+#Interests\ and\ Hobbies-list {
+    text-align: left; /* Aligns text to the left */
+    list-style-type: disc; /* Adds bullet points */
+    margin-left: 20px; /* Adds some space from the left */
+    padding-left: 0; /* Removes padding to ensure alignment */
+}
+
+/* Left align the list in the References section */
+#References-list {
+    text-align: left; /* Aligns text to the left */
+    list-style-type: disc; /* Adds bullet points */
+    margin-left: 20px; /* Adds some space from the left */
+    padding-left: 0; /* Removes padding to ensure alignment */
+}
+
+#skills-list {
+    text-align: left; /* Aligns text to the left */
+    list-style-type: disc; /* Adds bullet points */
+    margin-left: 20px; /* Adds some space from the left */
+    padding-left: 0; /* Removes padding to ensure alignment */
+}
+
+/* Left align the list in the Languages section */
+#Languages-list {
+    text-align: left; /* Aligns text to the left */
+    list-style-type: disc; /* Adds bullet points */
+    margin-left: 20px; /* Adds some space from the left */
+    padding-left: 0; /* Removes padding to ensure alignment */
+}
+
+#certifications-list {
+    text-align: left; /* Aligns text to the left */
+    list-style-type: disc; /* Adds bullet points */
+    margin-left: 20px; /* Adds some space from the left */
+    padding-left: 0; /* Removes padding to ensure alignment */
+}
+.file-upload {
+        position: relative;
+        overflow: hidden;
+        margin: 10px;
+    }
+.file-upload input[type='file'] {
+position: absolute;
+font-size: 50px;
+opacity: 0;
+right: 0;
+top: 0;
+}
+.file-upload-button {
+border: 2px solid #ee0979;
+color: white;
+background-color: #6441A5;
+padding: 10px 20px;
+border-radius: 5px;
+font-size: 16px;
+font-weight: bold;
+}
+.file-name {
+display: inline-block;
+padding: 10px;
+color: #555;
+vertical-align: top;
+min-width: 240px;
+margin-left: 10px;
+}
+
+input[type="date"]::placeholder {
+        color: #888;
+        opacity: 1;
+}
+.experience h3, .education h3 {
+text-align: left;
+color: #333;
+font-size: 18px;
+margin: 10px 0;
+}
+
+.experience h4, .education h4 {
+    text-align: left;
+    color: #555;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.experience ul, .education ul {
+    padding-left: 20px;
+}
+
+.experience li, .education li {
+    text-align: left;
+}
+
+/* Skills section alignment overrides */
+.skills h3, .skills ul {
+    text-align: left; /* Overrides the center alignment from #msform */
+}
+
+.skills ul {
+    list-style-position: inside; /* Positions the bullet points inside the list area */
+    padding-left: 0; /* Removes padding to align with the start of the section */
+}
+
+.skills ul li {
+    display: list-item; /* Displays elements as list items */
+    margin-left: 20px; /* Adds left margin for better alignment and readability */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+
+html {
+    height: 100%;
+    background: #6441A5;
+    background: -webkit-linear-gradient(to left, #6441A5, #2a0845);
+}
+
+body {
+    font-family: Montserrat, Arial, Verdana;
+    background: transparent;
+}
+
+
+#msform {
+    text-align: center;
+    position: relative;
+    margin-top: 30px;
+}
+
+#msform fieldset {
+    background: white;
+    border: 0 none;
+    border-radius: 0px;
+    box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+    padding: 20px 30px;
+    box-sizing: border-box;
+    width: 80%;
+    margin: 0 10%;
+    position: relative;
+}
+
+#msform fieldset:not(:first-of-type) {
+    display: none;
+}
+
+#msform input, #msform textarea {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Montserrat;
+    color: #2C3E50;
+    font-size: 13px;
+}
+
+#msform input:focus, #msform textarea:focus {
+    border: 1px solid #ee0979;
+    outline-width: 0;
+    transition: All 0.5s ease-in;
+}
+
+#msform .action-button {
+    width: 100px;
+    background: #ee0979;
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 25px;
+    cursor: pointer;
+    padding: 10px 5px;
+    margin: 10px 5px;
+}
+
+#msform .action-button:hover, #msform .action-button:focus {
+    box-shadow: 0 0 0 2px white, 0 0 0 3px #ee0979;
+}
+
+#msform .action-button-previous {
+    width: 100px;
+    background: #C5C5F1;
+    font-weight: bold;
+    color: white;
+    border: 0 none;
+    border-radius: 25px;
+    cursor: pointer;
+    padding: 10px 5px;
+    margin: 10px 5px;
+}
+
+#msform .action-button-previous:hover, #msform .action-button-previous:focus {
+    box-shadow: 0 0 0 2px white, 0 0 0 3px #C5C5F1;
+}
+
+.fs-title {
+    font-size: 18px;
+    text-transform: uppercase;
+    color: #2C3E50;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.fs-subtitle {
+    font-weight: normal;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+        #progressbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding: 0;
+    counter-reset: step;
+    list-style-type: none;
+    position: relative;
+    width: 100%; /* Ensure the progress bar spans the entire width */
+}
+
+#progressbar li {
+    color: white;
+    text-transform: uppercase;
+    font-size: 9px;
+    width: 8%; /* Adjust width for equal spacing */
+    text-align: center;
+    position: relative;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+#progressbar li:before {
+    content: counter(step);
+    counter-increment: step;
+    width: 24px;
+    height: 24px;
+    line-height: 26px;
+    display: block;
+    font-size: 12px;
+    color: #333;
+    background: white;
+    border-radius: 25px;
+    margin: 0 auto 10px auto;
+    z-index: 2; /* Ensure dots are on top */
+    position: relative;
+}
+
+#progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: white;
+    position: absolute;
+    left: -50%;
+    top: 13px; /* Aligns the connecting line */
+    z-index: 1; /* Ensure the line is behind the dots */
+}
+
+#progressbar li:first-child:after {
+    content: none;
+}
+
+#progressbar li.active:before, #progressbar li.active:after {
+    background: #ee0979; /* Color for the active progress */
+    color: white;
+}
+
+.add-another {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: auto;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.add-another:hover {
+    background-color: #45a049;
+}
+
+.delete-btn {
+    background-color: #FF6347;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 13px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.delete-btn:hover {
+    background-color: #e55342;
+}
+
+.resume {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+    color: #333;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+}
+
+.header h1 {
+    margin: 10px 0;
+    font-size: 28px;
+    color: #007bff;
+}
+
+.header p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.section-content {
+    margin-bottom: 20px;
+}
+
+.experience, .education, .skills, .open-source {
+    margin-bottom: 20px;
+}
+
+.experience h3, .education h3, .skills h3, .open-source h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.experience h4, .education h4 {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #555;
+    display: flex;
+    justify-content: space-between;
+}
+
+.skills ul {
+    list-style: none;
+    padding: 0;
+}
+
+.skills ul li {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+.open-source a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.open-source a:hover {
+    text-decoration: underline;
+}
+
+</style>
+<style>
+        /* New styles for fieldset navigation */
+    #msform fieldset {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    #msform fieldset:target {
+        display: block;
+        opacity: 1;
+    }
+
+    #msform fieldset:first-of-type {
+        display: block;
+    }
+
+    #progressbar li {
+        pointer-events: none;
+    }
+
+    #progressbar li.active {
+        pointer-events: auto;
+    }
+</style>
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="card my-4 wider-card">
+            <div class="card-body overflow-auto form-group container">
+                <form id="msform" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <ul id="progressbar">
+                        <li class="active"><a href="#personal-info">Personal Information</a></li>
+                        <li><a href="#profile-photo">Profile Photo</a></li>
+                        <li><a href="#professional-summary">Professional Summary</a></li>
+                        <li><a href="#work-experience">Work Experience</a></li>
+                        <li><a href="#education">Education</a></li>
+                        <li><a href="#certifications">Certifications</a></li>
+                        <li><a href="#languages">Languages</a></li>
+                        <li><a href="#skills">Skills</a></li>
+                        <li><a href="#interests-hobbies">Interests and Hobbies</a></li>
+                        <li><a href="#references">References</a></li>
+                        <li><a href="#preview">Preview</a></li>
+                    </ul>
+
+                    <!-- Personal Information -->
+                    <fieldset id="personal-info">
+                        <h2 class="fs-title">Personal Information</h2>
+                        <h3 class="fs-subtitle">Tell us something more about you</h3>
+                        <input id="firstname" type="text" name="firstname" value="{{ candidate.First_Name }}" placeholder="First Name"/>
+                        <input id="lastname" type="text" name="lastname" value="{{ candidate.Last_Name }}" placeholder="Last Name"/>
+                        <input id="email" type="email" name="email" value="{{ candidate.email_address }}" placeholder="Email"/>
+                        <input id="phone" type="tel" name="phone" value="{{ candidate.phone_number }}" placeholder="Phone"/>
+                        <input id="address" type="text" name="address" value="{{ candidate.Street_Address }}" placeholder="Address"/>
+                        <a href="#profile-photo" class="next action-button">Next</a>
+                    </fieldset>
+
+                    <!-- Profile Photo -->
+                    <fieldset id="profile-photo">
+                        <h2 class="fs-title">Profile Photo</h2>
+                        <h3 class="fs-subtitle">Upload your profile photo</h3>
+                        <div class="file-upload">
+                            <button type="button" class="file-upload-button">Choose File</button>
+                            <span class="file-name">{% if candidate.photo %}Current file: {{ candidate.photo.name }}{% else %}No file chosen...{% endif %}</span>
+                            <input type="file" name="profile_photo" id="profile-upload" accept="image/*"/>
+                        </div>
+                        <a href="#personal-info" class="previous action-button-previous">Previous</a>
+                        <a href="#professional-summary" class="next action-button">Next</a>
+                    </fieldset>
+
+                    <!-- Professional Summary -->
+                    <fieldset>
+                        <h2 class="fs-title">Professional Summary</h2>
+                        <h3 class="fs-subtitle">Your professional summary</h3>
+                        <textarea name="summary" id="profile-summary" placeholder="Write your professional summary here">{{ resume.summary }}</textarea>
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Work Experience -->
+                    <fieldset>
+                        <h2 class="fs-title">Work Experience</h2>
+                        <h3 class="fs-subtitle">Add your work experience</h3>
+                        <div class="work-experience-container">
+                            {% for company in resume.company %}
+                            <div class="work-experience-entry">
+                                <input type="text" name="company[]" value="{{ company }}" placeholder="Company"/>
+                                <input type="text" name="role[]" value="{{ resume.role|get_item:forloop.counter0 }}" placeholder="Role"/>
+                                <input type="text" name="work_tenure[]" value="{{ resume.work_tenure|get_item:forloop.counter0 }}" placeholder="Tenure"/>
+                                <textarea name="responsibilities[]" placeholder="Responsibilities">{{ resume.responsibilities|get_item:forloop.counter0 }}</textarea>
+                                {% if not forloop.first %}
+                                <button type="button" class="delete-btn">Delete</button>
+                                {% endif %}
+                            </div>
+                            {% empty %}
+                            <div class="work-experience-entry">
+                                <input type="text" name="company[]" placeholder="Company"/>
+                                <input type="text" name="role[]" placeholder="Role"/>
+                                <input type="text" name="work_tenure[]" placeholder="Tenure"/>
+                                <textarea name="responsibilities[]" placeholder="Responsibilities"></textarea>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="add-another">Add Another</button>
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Education -->
+                    <fieldset>
+                        <h2 class="fs-title">Education</h2>
+                        <h3 class="fs-subtitle">Your educational background</h3>
+                        <!-- Add education fields here -->
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Certifications -->
+                    <fieldset>
+                        <h2 class="fs-title">Certifications</h2>
+                        <h3 class="fs-subtitle">List your certifications</h3>
+                        <!-- Add certification fields here -->
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Languages -->
+                    <fieldset>
+                        <h2 class="fs-title">Languages</h2>
+                        <h3 class="fs-subtitle">Languages you speak</h3>
+                        <!-- Add language fields here -->
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Skills -->
+                    <fieldset>
+                        <h2 class="fs-title">Skills</h2>
+                        <h3 class="fs-subtitle">Your key skills</h3>
+                        <!-- Add skills fields here -->
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Interests and Hobbies -->
+                    <fieldset>
+                        <h2 class="fs-title">Interests and Hobbies</h2>
+                        <h3 class="fs-subtitle">What you enjoy doing</h3>
+                        <!-- Add interests and hobbies fields here -->
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- References -->
+                    <fieldset>
+                        <h2 class="fs-title">References</h2>
+                        <h3 class="fs-subtitle">Your professional references</h3>
+                        <!-- Add reference fields here -->
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="button" name="next" class="next action-button" value="Next"/>
+                    </fieldset>
+
+                    <!-- Preview -->
+                    <fieldset>
+                        <h2 class="fs-title">Preview & Finish</h2>
+                        <h3 class="fs-subtitle">Review your details before submitting</h3>
+                        <div id="resume" class="container">
+                            <!-- Preview content will be dynamically populated here -->
+                        </div>
+                        <input type="button" name="previous" class="previous action-button-previous" value="Previous"/>
+                        <input type="submit" name="submit" class="submit action-button" value="Submit"/>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.2.0/docx.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@7.1.1/build/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle progress bar updates
+        const progressSteps = document.querySelectorAll('#progressbar li');
+        const fieldsets = document.querySelectorAll('#msform fieldset');
+
+        function updateProgressBar() {
+            const currentFieldset = document.querySelector('#msform fieldset:target') || fieldsets[0];
+            const currentIndex = Array.from(fieldsets).indexOf(currentFieldset);
+
+            progressSteps.forEach((step, index) => {
+                if (index <= currentIndex) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
+        // Initial update and listen for hash changes
+        updateProgressBar();
+        window.addEventListener('hashchange', updateProgressBar);
+
+    // File upload handling
+    const fileInput = document.getElementById('profile-upload');
+    const fileNameDisplay = document.querySelector('.file-name');
+    const fileUploadButton = document.querySelector('.file-upload-button');
+
+    if (fileInput && fileNameDisplay && fileUploadButton) {
+        fileInput.addEventListener('change', function() {
+            fileNameDisplay.textContent = this.files[0] ? this.files[0].name : 'No file chosen...';
+        });
+
+        fileUploadButton.addEventListener('click', function() {
+            fileInput.click();
+        });
+    }
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Add your form submission logic here
+        console.log('Form submitted');
+    });
+});
+</script>
+
+{% endblock %}

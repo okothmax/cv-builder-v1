@@ -1,0 +1,216 @@
+{% extends 'report_base.html' %}
+{% load student_exam_extras %}
+{% load static %}
+{% load my_filters %}
+
+{% block content %}
+<main id="main">
+    <div class="card my-4 wider-card">
+        <div class="card-header">
+            <h2 class="text-center mb-0">
+                {% if examination.examination_name %}
+                {{ examination.examination_name }}
+                {% else %}
+                {{ examination.class_level }}
+                {% endif %}
+            </h2>
+            <p class="text-center mb-0">
+                {{ examination.class_information.course_class_no }} - {{ examination.class_information.course_intake }}
+            </p>
+            {% if examination.class_information.teacher %}
+            <p class="text-center mb-0">
+                Teacher: {{ examination.class_information.teacher.first_name }} {{ examination.class_information.teacher.last_name }}
+            </p>
+            {% endif %}
+        </div>
+        <br>
+
+        <div class="container overflow-auto">
+            <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                {% if exams %}
+                <thead>
+                <tr>
+                    <th style="text-align: center;">STUDENT</th>
+                    <th style="text-align: center;">SPEAKING</th>
+                    <th style="text-align: center;">LISTENING</th>
+                    <th style="text-align: center;">READING</th>
+                    <th style="text-align: center;">WRITING</th>
+                    <th style="text-align: center;">TOTAL SCORE</th>
+                    <th style="text-align: center;">RECOMMENDATIONS</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for student_exam in exams %}
+                <tr>
+                    <td style="text-align: center;">{{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}</td>
+    <td style="text-align: center;">
+        {% if student_exam.speaking_display %}
+        {% with percentage=student_exam.speaking_display|percentage:student_exam.speaking_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.listening_display %}
+        {% with percentage=student_exam.listening_display|percentage:student_exam.listening_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.reading_display %}
+        {% with percentage=student_exam.reading_display|percentage:student_exam.reading_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.writing_display %}
+        {% with percentage=student_exam.writing_display|percentage:student_exam.writing_total %}
+        <span style="color: {% if percentage >= 60 %}green{% else %}red{% endif %};">
+                        {{ percentage|floatformat:2 }}%
+                    </span>
+        {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+    <td style="text-align: center;">
+        {% if student_exam.percentage_score %}
+            {% with speaking_pass=student_exam.speaking_display|percentage:student_exam.speaking_total|gte:60 %}
+            {% with listening_pass=student_exam.listening_display|percentage:student_exam.listening_total|gte:60 %}
+            {% with reading_pass=student_exam.reading_display|percentage:student_exam.reading_total|gte:60 %}
+            {% with writing_pass=student_exam.writing_display|percentage:student_exam.writing_total|gte:60 %}
+                {% if student_exam.speaking_display or student_exam.listening_display or student_exam.reading_display or student_exam.writing_display %}
+                    {% all_true speaking_pass listening_pass reading_pass writing_pass as all_pass %}
+                    <span style="color: {% if all_pass %}green{% else %}red{% endif %};">
+                        {{ student_exam.percentage_score }}
+                    </span>
+                    {% if not all_pass %}
+                        <br>
+                        <small style="color: red;">
+                            Failed:
+                            {% if student_exam.speaking_display and not speaking_pass %}Speaking {% endif %}
+                            {% if student_exam.listening_display and not listening_pass %}Listening {% endif %}
+                            {% if student_exam.reading_display and not reading_pass %}Reading {% endif %}
+                            {% if student_exam.writing_display and not writing_pass %}Writing{% endif %}
+                        </small>
+                    {% endif %}
+                {% else %}
+                    <span style="color: {% if student_exam.percentage_score_as_decimal >= 0.6 %}green{% else %}red{% endif %};">
+                        {{ student_exam.percentage_score }}
+                    </span>
+                    {% if student_exam.percentage_score_as_decimal < 0.6 %}
+                        <br>
+                        <small style="color: red;">
+                            Failed: Overall average below 60%
+                        </small>
+                    {% endif %}
+                {% endif %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+            {% endwith %}
+        {% else %}
+        N/A
+        {% endif %}
+    </td>
+                    <td style="text-align: center;">
+                        <button class="btn btn-info btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#detailsModal{{ student_exam.id }}">
+                            {% if student_exam.examination_report.admin_decision == 'pending' %}
+                                Respond
+                            {% else %}
+                                View Response
+                            {% endif %}
+                        </button>
+                    </td>
+                </tr>
+
+                {% endfor %}
+                </tbody>
+                {% else %}
+                <p style="text-align: center;">No students found for this examination.</p>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Details Modals -->
+    {% for student_exam in exams %}
+    <div class="modal fade" id="detailsModal{{ student_exam.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ student_exam.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel{{ student_exam.id }}">
+                        Recommendations for {{ student_exam.student.First_Name }} {{ student_exam.student.Last_Name }}
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <h6>Teacher's Notes:</h6>
+                    <p>{{ student_exam.examination_report.teachers_notes|default:"No notes available." }}</p>
+                    <h6>Way Forward:</h6>
+                    <p>{{ student_exam.examination_report.get_way_forward_display|default:"Not set" }}</p>
+
+                    <hr>
+                    <h6>Decision:</h6>
+                    {% if student_exam.examination_report.admin_decision == 'pending' %}
+                        <form method="post" action="{% url 'admin_approve_report' student_exam.examination_report.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="admin_decision" class="form-label">Approve or Reject:</label>
+                                <select class="form-select" id="admin_decision" name="admin_decision" required>
+                                    <option value="">Select decision</option>
+                                    <option value="approve">Approve</option>
+                                    <option value="reject">Reject</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="admin_notes" class="form-label">Comments:</label>
+                                <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Decision</button>
+                        </form>
+                    {% else %}
+                        <p>{{ student_exam.examination_report.get_admin_decision_display }}</p>
+                        <h6>Report Comments:</h6>
+                        <p>{{ student_exam.examination_report.admin_notes|default:"No notes available." }}</p>
+                        <h6>Response Made On:</h6>
+                        <p>{{ student_exam.examination_report.admin_decision_date|date:"F d, Y H:i" }}</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Handle view details button click
+        $('.view-details').on('click', function() {
+            var studentId = $(this).data('student-id');
+            $('.details-container').hide(); // Hide all detail containers
+            $('#details' + studentId).toggle(); // Toggle the clicked student's details
+            $(this).find('i').toggleClass('fa-info-circle fa-chevron-up');
+        });
+    });
+</script>
+{% endblock %}

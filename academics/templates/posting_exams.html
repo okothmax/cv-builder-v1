@@ -1,0 +1,791 @@
+{% extends 'teacher_base.html' %}
+
+{% load my_filters %}
+
+{% block content %}
+<style>
+input:disabled, select:disabled {
+    background-color: #f0f0f0;
+    color: #888;
+}
+    .wider-card {
+        margin: 0 auto; /* Center the card horizontally */
+        padding: 15px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Optional: Adds some depth */
+        transition: 0.3s; /* Optional: Adds a transition effect on hover */
+        max-width: 1200px; /* Prevent cards from becoming too wide */
+        width: 100%;
+    }
+    .container {
+        max-width: 1200px; /* Maximum width of the container */
+        margin: auto; /* Centers the container */
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #665454;
+        color: white;
+    }
+    button {
+        display: block;
+        width: 100%; /* Adjust based on preference */
+        padding: 10px;
+        margin-top: 20px; /* Add some space above the button */
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    @media (max-width: 768px) {
+        .wider-card, .table-responsive {
+            padding: 0;
+        }
+        .table-responsive {
+            overflow-x: auto; /* Enable horizontal scrolling on small devices */
+        }
+    }
+
+    .btn i {
+        margin-right: 0; /* Adjust or remove spacing to the right of the icon if necessary */
+    }
+    /* Adjust icon size */
+    .btn .fas {
+        font-size: 1em; /* Adjust the size of icons */
+    }
+</style>
+
+<style>
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .exam-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    .exam-table th, .exam-table td {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .exam-table th {
+        background-color: #e9ecef;
+        color: #333;
+        text-align: left;
+        font-weight: 600;
+    }
+    .exam-table tr:last-child td {
+        border-bottom: none;
+    }
+    .exam-info {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .exam-info h5, .exam-info p {
+        margin-bottom: 10px;
+    }
+    .exam-info i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+    .btn-success {
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    .btn-success:hover {
+        background-color: #218838;
+    }
+</style>
+<!--comments for reports-->
+<style>
+    .btn-minimal {
+    background: none;
+    border: none;
+    color: #3498db;
+    padding: 6px 10px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.btn-minimal:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.btn-minimal .icon {
+    margin-right: 6px;
+    font-size: 10px;
+}
+
+.data-indicator {
+    color: #2ecc71;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.reports-column {
+    padding: 14px;
+}
+
+.way-forward-section, .notes-section {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    font-size: 13px;
+    color: #34495e;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.way-forward-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.dropdown-toggle {
+    background: none;
+    border: 1px solid #3498db;
+    color: #3498db;
+    padding: 6px 10px;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.dropdown-toggle:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.dropdown-toggle::after {
+    content: '\f107';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-left: 6px;
+    font-size: 12px;
+}
+
+.dropdown-toggle.active::after {
+    content: '\f106';
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 160px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 1;
+    border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.way-forward-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 6px 10px;
+    border: none;
+    background: none;
+    color: #333;
+    transition: background-color 0.3s ease;
+    font-size: 12px;
+}
+
+.way-forward-option:hover {
+    background-color: #f1f8fe;
+}
+
+.way-forward-option.selected {
+    background-color: #e1f0fb;
+    color: #3498db;
+    font-weight: 500;
+}
+
+.passed-message {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e8f8f5;
+    color: #27ae60;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.passed-message .badge-success {
+    background-color: #27ae60;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 10px;
+    font-size: 10px;
+    margin-right: 5px;
+}
+</style>
+<!--Colour of failure-->
+<style>
+    .failed-assessments {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .failed-assessment {
+        font-size: 0.75em;
+        padding: 2px 5px;
+        border-radius: 3px;
+        background-color: #ffeeee;
+        border: 1px solid #ffcccc;
+    }
+    .failed-assessment .text-danger {
+        color: #dc3545;
+    }
+</style>
+<!--Admin-->
+<style>
+    /* ... your existing styles ... */
+
+    .admin-decision {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.75em;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .admin-decision.approved {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    .admin-decision.rejected {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+    .admin-decision.pending {
+        background-color: #fff3e0;
+        color: #ef6c00;
+    }
+</style>
+
+<main id="main">
+    {% include "header.html" %}
+    <div class="vertical-space">
+        <div class="filter-container">
+            <div class="filter-card">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-file-alt"></i>
+                    Record Assessments
+                </h3>
+
+
+            <form method="POST" action="{% url 'manage_student_exams' exam_id=examination.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="course_class_no" value="{{ examination.class_information.course_class_no }}">
+                <input type="hidden" name="time_filter" value="{{ current_time_filter }}">
+                <input type="hidden" name="save_all" value="true">
+<div class="exam-info">
+    <h5 class="text-center mb-3">
+        <i class="fas fa-calendar-alt"></i>
+        {{ examination.class_information.course_class_no }} - {{ examination.class_information.course_intake }}
+    </h5>
+    <p class="text-center">
+        <i class="fas fa-map-marker-alt"></i> Class Location: {{ examination.class_information.teacher.course_location }}
+    </p>
+    <p class="text-center">
+        <i class="fas fa-clock"></i> Time: {{ time_choices|get_by_key:current_time_filter }}
+        <br>
+                <a href="{% url 'manage_student_exams' exam_id=examination.id %}?course_class_no={{ examination.class_information.course_class_no }}"
+           class="btn btn-outline-secondary btn-sm">
+            Change Class 🔄
+        </a>
+    </p>
+
+</div>
+
+<div id="last-modified-timestamp" style="font-size: 0.9em; color: #666; padding: 10px; border-top: 1px solid #eee; margin-top: 20px; font-style: italic;"></div>
+
+                <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+    <thead>
+    <tr>
+        <th style="width: 15%">Student Name</th>
+        <th style="text-align: center;">Average</th>
+        <th style="text-align: center;">Reports</th>
+        <th style="text-align: center;">Speaking</th>
+        <th style="text-align: center;">Listening</th>
+        <th style="text-align: center;">Reading</th>
+        <th style="text-align: center;">Writing</th>
+    </tr>
+<!--    <tr>-->
+<!--        <th colspan="3">Total Scores:</th>-->
+<!--        {% for skill in skills %}-->
+<!--        <th>-->
+<!--            <input type="number" step="0.01" id="{{ skill }}_total" name="{{ skill }}_total"-->
+<!--                   class="form-control skill-total-global" placeholder="Total"-->
+<!--                   value="{{ global_totals|get_item:skill|default_if_none:'' }}">-->
+<!--        </th>-->
+<!--        {% endfor %}-->
+<!--    </tr>-->
+    <tr>
+        <th colspan="3">Description:</th>
+        <th style="text-align: center;">Score / Total</th>
+        <th style="text-align: center;">Score / Total</th>
+        <th style="text-align: center;">Score / Total</th>
+        <th style="text-align: center;">Score / Total</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for student in students %}
+        {% with student_exam=student_exams_dict|get:student.id %}
+        <tr>
+    <td>
+        {{ student.First_Name }} {{ student.Last_Name }}
+        {% with student_passed=students_passed_dict|get:student.id %}
+            {% if not student_passed %}
+                {% with admin_decision=admin_decisions_dict|get:student.id %}
+                    {% if admin_decision %}
+                        <br><br>
+                        <small class="admin-decision {{ admin_decision }}">
+                            Admin Decision: {{ admin_decision|title }}
+                        </small>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
+    </td>
+            <input type="hidden" name="student_id_{{ forloop.counter0 }}" value="{{ student.id }}">
+
+            <td>
+                <input type="text" id="score_{{ student.id }}" name="score_{{ student.id }}"
+                    value="{{ student_exam.percentage_score|default_if_none:'' }}" class="form-control" readonly>
+                {% if student_exam %}
+                    <div class="failed-assessments mt-2">
+                        {% for skill in skills %}
+                            {% if student_exam|get_skill_score:skill and student_exam|get_skill_total:skill %}
+                                {% with score=student_exam|get_skill_score:skill|to_float total=student_exam|get_skill_total:skill|to_float %}
+                                    {% if score < total|multiply:0.6 %}
+                                        <div class="failed-assessment">
+                                            <small class="text-danger">Failed: {{ skill|title }}</small>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </td>
+
+            <td data-label="REPORTS" class="reports-column">
+                <div class="actions-container">
+                    {% if student_exam %}
+                        {% with examination_report=examination_reports_dict|get:student_exam.id %}
+                            {% if student_exam|all_subscores_above_60 %}
+                                <div class="passed-message">
+                                    <span class="badge badge-success">Passed</span>
+                                </div>
+                            {% else %}
+                                <div class="dropdown" style="position: relative;">
+                                    <button class="btn btn-sm btn-minimal dropdown-toggle" onclick="toggleDropdown(this)">
+                                        Way Forward
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <div class="way-forward-options">
+                                            {% for value, display in way_forward_choices %}
+                                            <button class="way-forward-option {% if examination_report.way_forward == value %}selected{% endif %}"
+                                                    data-student-id="{{ student_exam.id }}">
+                                                {{ value }}
+                                                <i class="fas fa-check ml-1 {% if examination_report.way_forward != value %}d-none{% endif %}"></i>
+                                            </button>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <span>No Assessment Recorded.</span>
+                    {% endif %}
+                </div>
+            </td>
+
+            {% for skill in skills %}
+            <td>
+                <input type="number" step="0.01" id="{{ skill }}_score_{{ student.id }}" name="{{ skill }}_score_{{ student.id }}"
+                    value="{% if student_exam %}{{ student_exam|get_skill_score:skill|default_if_none:'' }}{% endif %}" class="form-control skill-input autosave-input" placeholder="Score" data-skill="{{ skill }}" data-student-id="{{ student.id }}">
+                <input type="number" step="0.01" id="{{ skill }}_total_{{ student.id }}" name="{{ skill }}_total_{{ student.id }}"
+                    value="{% if student_exam %}{{ student_exam|get_skill_total:skill|default_if_none:'' }}{% endif %}" class="form-control skill-total autosave-input" placeholder="{{ global_totals|get:skill|default:'Total' }}" data-skill="{{ skill }}" data-student-id="{{ student.id }}">
+                <select name="{{ skill }}_missed_reason_{{ student.id }}" id="{{ skill }}_missed_reason_{{ student.id }}" class="form-control reason-select autosave-input" data-skill="{{ skill }}" data-student-id="{{ student.id }}">
+                    <option value="">-- Select Reason --</option>
+                    {% for value, display in missed_assessment_reasons %}
+                    <option value="{{ value }}" {% if student_exam and student_exam|get_skill_missed_reason:skill == value %}selected{% endif %}>{{ display }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            {% endfor %}
+        </tr>
+        {% endwith %}
+    {% endfor %}
+    </tbody>
+</table>
+
+            </form>
+        </div>
+    </div>
+    <br><br>
+</div>
+{% include 'examination_reports_modals.html' %}
+</main>
+
+{% block additional_js %}
+<!--Reports Column Script-->
+<script>
+    // Isolated script for Reports column functionality
+document.addEventListener("DOMContentLoaded", function() {
+    // Function to toggle dropdown
+    window.toggleDropdown = function(button) {
+        const dropdownContent = button.nextElementSibling;
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Function to update Way Forward options
+    function updateWayForward(studentId, value) {
+        const buttons = document.querySelectorAll(`.way-forward-option[data-student-id="${studentId}"]`);
+        buttons.forEach(button => {
+            const checkIcon = button.querySelector('i');
+            if (button.textContent.trim() === value) {
+                button.classList.add('selected');
+                checkIcon.classList.remove('d-none');
+            } else {
+                button.classList.remove('selected');
+                checkIcon.classList.add('d-none');
+            }
+        });
+
+        // Close the dropdown after selection
+        const dropdown = buttons[0].closest('.dropdown-content');
+        if (dropdown) {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    // Add click event listeners to Way Forward options
+    document.querySelectorAll('.way-forward-option').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent event bubbling
+            const studentId = this.dataset.studentId;
+            const value = this.textContent.trim();
+            updateWayForward(studentId, value);
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.matches('.dropdown-toggle')) {
+            const dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                const openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    });
+});
+</script>
+
+<!--Combined script for all functionality except Reports column-->
+<script>
+    // Combined script for all functionality except Reports column, now including timestamp feature
+document.addEventListener("DOMContentLoaded", function() {
+    const skills = ['speaking', 'listening', 'reading', 'writing'];
+
+    // Function to adjust field state based on input
+    function adjustFieldState(scoreField, totalField, reasonField) {
+        if (scoreField.value.trim() !== '' || totalField.value.trim() !== '') {
+            reasonField.disabled = true;
+            reasonField.value = '';
+        } else if (reasonField.value.trim() !== '') {
+            scoreField.disabled = true;
+            totalField.disabled = true;
+            scoreField.value = '';
+            totalField.value = '';
+        } else {
+            scoreField.disabled = false;
+            totalField.disabled = false;
+            reasonField.disabled = false;
+        }
+    }
+
+    // Function to handle skill fields
+    function handleSkillFields(skillName, studentId) {
+        const scoreField = document.getElementById(`${skillName}_score_${studentId}`);
+        const totalField = document.getElementById(`${skillName}_total_${studentId}`);
+        const reasonField = document.getElementById(`${skillName}_missed_reason_${studentId}`);
+
+        adjustFieldState(scoreField, totalField, reasonField);
+    }
+
+    // Function to initialize fields
+    function initializeFields() {
+        skills.forEach(skill => {
+            document.querySelectorAll(`input[id^="${skill}_score_"]`).forEach(input => {
+                const studentId = input.id.split('_').pop();
+                handleSkillFields(skill, studentId);
+            });
+        });
+    }
+
+    // Function to handle global totals
+    function handleGlobalTotals() {
+        skills.forEach(skill => {
+            const globalTotalInput = document.getElementById(`${skill}_total`);
+            const individualTotalInputs = document.querySelectorAll(`input[id^="${skill}_total_"]`);
+
+            if (globalTotalInput) {
+                globalTotalInput.addEventListener('input', function() {
+                    const globalValue = this.value;
+                    individualTotalInputs.forEach(input => {
+                        if (!input.value) {
+                            input.value = globalValue;
+                        }
+                        input.placeholder = globalValue || 'Total';
+                    });
+                });
+            }
+        });
+    }
+
+    // Function to initialize global totals
+    function initializeGlobalTotals() {
+        skills.forEach(skill => {
+            const globalTotalInput = document.getElementById(`${skill}_total`);
+            const individualTotalInputs = document.querySelectorAll(`input[id^="${skill}_total_"]`);
+
+            if (globalTotalInput && globalTotalInput.value) {
+                individualTotalInputs.forEach(input => {
+                    if (!input.value) {
+                        input.value = globalTotalInput.value;
+                    }
+                    input.placeholder = globalTotalInput.value;
+                });
+            }
+        });
+    }
+
+    // Function to set up autosave
+    function setupAutosave() {
+        const autosaveInputs = document.querySelectorAll('.autosave-input');
+
+        autosaveInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const skill = this.dataset.skill;
+                const studentId = this.dataset.studentId;
+
+                const formData = new FormData();
+                formData.append('student_id', studentId);
+                formData.append('skill', skill);
+                formData.append('score', document.getElementById(`${skill}_score_${studentId}`).value);
+                formData.append('total', document.getElementById(`${skill}_total_${studentId}`).value);
+                formData.append('missed_reason', document.getElementById(`${skill}_missed_reason_${studentId}`).value);
+
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch('{% url 'manage_student_exams' exam_id=examination.id %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Autosave successful');
+                        updateUIAfterSave(studentId, skill, data);
+                        updateLastModifiedTimestamp(); // Update timestamp after successful save
+                    } else {
+                        console.error('Autosave failed:', data.error);
+                        showErrorMessage(studentId, skill, data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorMessage(studentId, skill, 'An error occurred while saving.');
+                });
+            });
+        });
+    }
+
+    // Function to update UI after save
+    function updateUIAfterSave(studentId, skill, data) {
+        if (data.percentage_score) {
+            const scoreInput = document.getElementById(`score_${studentId}`);
+            if (scoreInput) {
+                scoreInput.value = data.percentage_score;
+            }
+        }
+        updateFailedAssessments(studentId, data.failed_assessments);
+    }
+
+    // Function to update failed assessments
+    function updateFailedAssessments(studentId, failedAssessments) {
+        const failedAssessmentsContainer = document.querySelector(`#failed-assessments-${studentId}`);
+        if (failedAssessmentsContainer) {
+            failedAssessmentsContainer.innerHTML = '';
+            if (failedAssessments && failedAssessments.length > 0) {
+                failedAssessments.forEach(skill => {
+                    const failedDiv = document.createElement('div');
+                    failedDiv.className = 'failed-assessment';
+                    failedDiv.innerHTML = `<small class="text-danger">Failed: ${skill}</small>`;
+                    failedAssessmentsContainer.appendChild(failedDiv);
+                });
+            }
+        }
+    }
+
+    // Function to show error message
+    function showErrorMessage(studentId, skill, message) {
+        let errorElement = document.getElementById(`error-message-${studentId}-${skill}`);
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.id = `error-message-${studentId}-${skill}`;
+            errorElement.className = 'text-danger mt-1';
+            document.getElementById(`${skill}_score_${studentId}`).parentNode.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+
+        setTimeout(() => {
+            errorElement.remove();
+        }, 5000);
+    }
+
+    // Function to update last modified timestamp
+    function updateLastModifiedTimestamp() {
+        const now = new Date();
+        const formattedDate = formatDate(now);
+        const timestampElement = document.getElementById('last-modified-timestamp');
+        if (timestampElement) {
+            timestampElement.textContent = `Last modified: ${formattedDate}`;
+        }
+    }
+
+    // Function to format date
+    function formatDate(date) {
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // Re-enable disabled fields before form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        document.querySelectorAll('input:disabled, select:disabled').forEach(field => {
+            field.disabled = false;
+        });
+    });
+
+    // Initialize all functionalities
+    handleGlobalTotals();
+    initializeFields();
+    initializeGlobalTotals();
+    setupAutosave();
+
+    // Initialize timestamp
+    updateLastModifiedTimestamp();
+});
+</script>
+
+<!--decision is either "Approved" or "Rejected"-->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function makeRowReadOnly(row) {
+        row.querySelectorAll('input, select').forEach(element => {
+            if (!element.classList.contains('way-forward-option')) {
+                element.setAttribute('readonly', true);
+                element.style.backgroundColor = '#f0f0f0';
+                element.style.color = '#888';
+            }
+        });
+    }
+
+    document.querySelectorAll('tr').forEach(row => {
+        const adminDecisionElement = row.querySelector('.admin-decision');
+        if (adminDecisionElement) {
+            const decision = adminDecisionElement.textContent.trim().toLowerCase();
+            if (decision.includes('approved') || decision.includes('rejected')) {
+                makeRowReadOnly(row);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}
+

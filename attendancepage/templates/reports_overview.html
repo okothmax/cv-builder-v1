@@ -1,0 +1,87 @@
+{% extends 'report_base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+/* Container for the grid and the "View More" button */
+.card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Grid layout for cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 1em; /* Space between cards */
+    max-height: 40vh; /* Limit initial height */
+    overflow: hidden; /* Hide additional cards initially */
+}
+
+/* Individual card styling */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for the card */
+    padding: 1em;
+}
+
+/* "View More" button styling */
+.view-more {
+    margin-top: 1em;
+    padding: 0.5em 1em;
+    background-color: #ccc;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+/* Location heading styling */
+.location-heading {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 2em;
+    margin-bottom: 1em;
+}
+</style>
+
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container">
+            <!-- Wrapper for the cards and the "View More" button -->
+            <div class="card-container">
+                {% for location, class_groups in class_groups_by_location.items %}
+                    <h2 class="location-heading">{{ location }} Attendance Records</h2>
+                    <!-- Display the cards in a 2x2 grid -->
+                    <div class="card-grid" id="card-grid">
+                        {% for class_no, class_info in class_groups.items %}
+                            <div class="card">
+                                <!-- Individual card -->
+                                <div class="icon-box">
+<h4 class="title"><a href="{% url 'display_attendance' %}?course_intake={{ class_info.course_intake }}&Course_Location={{ class_info.Course_Location }}">{{ class_info.course_intake }}</a></h4>
+                                    <h6 class="subtitle mb-2 text-muted">{{ class_no }}</h6> <!-- Course intake -->
+                                    <p class="description">
+                                        Assigned Teacher(s): {{ class_info.teachers }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <!-- "View More" button to reveal hidden cards -->
+                    <button class="view-more" onclick="revealMore(this)">View More</button>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- JavaScript to reveal more cards -->
+<script>
+function revealMore(button) {
+    const cardGrid = button.previousElementSibling;
+    cardGrid.style.maxHeight = 'none'; /* Allow more height */
+    button.style.display = 'none'; /* Hide the "View More" button after click */
+}
+</script>
+{% endblock %}

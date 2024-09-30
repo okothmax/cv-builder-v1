@@ -1,0 +1,39 @@
+{% extends 'report_base.html' %}
+{% load static %}
+{% block content %}
+<main id="main">
+    <div class="d-flex justify-content-center align-items-center mb-3">
+        <a href="{% url 'display_attendance' %}?course_intake={{ course_intake }}&Course_Location={{ course_location }}&month={{ previous_month }}&year={{ previous_year }}">
+            <i class="bi bi-caret-left-fill"></i>
+        </a>
+        <h5 class="mx-3" style="text-align: center;">{{ current_date|date:"F Y" }}</h5>
+        <a href="{% url 'display_attendance' %}?course_intake={{ course_intake }}&Course_Location={{ course_location }}&month={{ next_month }}&year={{ next_year }}">
+            <i class="bi bi-caret-right-fill"></i>
+        </a>
+    </div>
+    <div class="card my-4 wider-card">
+        <div class="table-responsive">
+            <table id="example1" class="table table-striped overflow-auto" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        {% for day in days %}
+                        <th>{{ day|date:"D d" }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in attendance_data %}
+                    <tr>
+                        <td>{{ data.candidate }}</td>
+                        {% for record in data.attendance %}
+                        <td>{{ record|safe }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
